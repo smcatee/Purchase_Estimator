@@ -1,0 +1,190 @@
+<!DOCTYPE HTML>
+<html>
+<div></div>
+<body>
+// put in field for number
+// put in button to run script
+<div id='order_matches'></div>
+<script>
+/*
+
+~~~~~~~~~~~~~~~~~~~ USEFUL INFO ~~~~~~~~~~~~~~~~~~~
+32.99 is to a
+24.99 is to b
+6.99 is to c
+3.99 is to d
+
+smallest to leargest differences    b-a,c-a,d-a,c-b,d-b,d-c
+                                    8  ,26 ,29 ,18 ,21 ,3
+                                    c-d,a-b,b-c,b-d,a-c,a-d
+                                    3  ,8  ,18 ,21 ,26 ,29
+                                            %3  %3
+
+total = a*32.99 + b*24.99 + c*6.99 + d*3.99
+
+base_number_of_items = ((HTML_input-Math.floor(HTML_input))*100)
+    base_number_of_items+100*m would add 100, 200, 300...
+
+
+~~~~~~~~~~~~~~~~~~~ DIFFERENCES VERSION ~~~~~~~~~~~~~~~~~~~~~~
+             ~~~~~~~~THE HEAD~~~~~~~~~
+-if this works, how do I encorporate m restrictions?
+m restrictions!!!
+
+start by checking [a,b,c,d] * m < total, whichever price hits below start w/ m of that price and add the next lowest price until just below total, then the next until just below total
+    e.g. if m=12  total~$76.??  ccccccccccdd  this is the most uniform price possible, no other price can be more frequent than c
+then start swapping w/ higher prices, change values when > total until
+
+
+ccccccccccdd
+bcccccccccdd > total, how many c's can I replace w/ d to add another b and be close to the total
+    (b-c)/(c-d) = number of b's I can add while also replacing a c w/ a d
+
+swap +b -c's, correct w/ +d's for -c's to be < total, then -d +c until over, repeat until not enough c's to swap for
+    swap +a for -c's, +d's -c's to be < total, +c -d until over
+
+
+
+i want to swap one b for one c, when I do so my new sum will be x above the total, is x%(d-c)=0
+    yes
+        and do I have enough c's to swap?
+            no, return to start, try adding +a for one c
+    no, try +dd for -cc and find x, is x%(d-c)=0 and do I have enough c's to swap
+        yes, match
+        no,
+
+              ~~~~~~~~~THE HEART~~~~~~~~~
+
+price_array = array[32.99,24.99,6.99,3.99]
+HTML_input = number(//input from form)
+purchase_array = array[0,0,0,0] //are multiples for [a,b,c,d] in total= a*32.99 + b*24.99 + c*6.99 + d*3.99
+m = 0;
+total = 0;
+
+
+total_function = function(purchase_array){
+    total = purchase_array[0]*price_array[0] + purchase_array[1]*price_array[1] + purchase_array[2]*price_array[2] + purchase_array[3]*price_array[3];
+    return total
+}
+
+
+/*
+~~~~~~~~~~~~~A GENERAL OVERVIEW OF THE SCRIPT~~~~~~~~~~~~~
+guess_function() adds values to purchase_array using the HTML input and m
+HTML_input is the dollar amount of a group of purchases
+m is a multiplier that will change the estimated number of products that were purchased based on the equation described below
+all product prices end in .99, the difference between the group of purchases (HTML_input) and Math.floor(HTML_input) * 100 = number of products
+    since some purchases are large the number of products (base_n_of_items) can be 100 or 200 or 300... more, so m*100 is used
+    the maximum number of products (base_n_of_items + 100*m) must be < HTML_input divided by the cheapest product (HTML_input/price_array[3])
+    guess_function() will pass ballpark guesses to check_for_match() which will make fine tuned guesses
+        then swap_function() will swap out number of products in the guess and pass back to check_for_match()
+        this will loop until swap_function can't iterate through any more swaps, it will pass m = m + 1 to guess_function()
+        this larger loop will continue until guess_function() reaches an m that makes (base_n_of_items+100*m) > (HTML_input/price_array[3])
+guess_function() is called at the end, all other functions will pass between eachother until the script ends
+*/
+/*
+guess_function = function(HTML_input,m){
+    base_n_of_items = (HTML_input - Math.floor(HTML_input))*100
+    n_of_items = base_number_of_items + 100 * m
+    //whichever fx ends the program (swap_function)
+    for (i=0; i<length(price_array); i++) {
+        i = 0
+        if (n_of_items*price_array[i] < HTML_input){
+            purchase_array[i] = n_of_items
+            //now swap next lowest option until total is just below HTML_input
+        }
+    i +=
+    }
+}
+
+
+//sum_below_total = the sum of the current iteration below the total
+//swap_in = the price I swapped in e.g. b
+//swap_out = the price I swapped out e.g. c
+//differences_array = array of differences for each b-a,c-a,d-a,c-b,d-b,d-c in order of smallest to largest
+
+swap_function(move_on, purchase_array){
+//
+}
+
+differences_array = array[price_array[2]-price_array[3],price_array[0]-price_array[1],price_array[1]-price_array[2],price_array[1]-price_array[3],price_array[0]-price_array[2],price_array[0]-price_array[3]];
+//c-d,a-b,b-c,b-d,a-c,a-d
+//3  ,8  ,18 ,21 ,26 ,29
+//        %3  %3   <- does it matter that one difference is a multiple of other differences?
+
+sum_below_total = the sum of the current iteration below the total
+swap_in = the price I swapped in e.g. b
+swap_out = the price I swapped out e.g. c
+
+check_for_match = function(){
+    new_sum = sum_below_total + swap_in - swap_out
+    for (i=0; i<length(differences_array); i++){
+    if (difference_array[i] < new_sum) {
+    if (new_sum%(differences_array[i])=0) then {
+        if (there are enough of each price to swap){
+        //add a match to match_array or concat into <div id='order_matches'>
+        move_on = FALSE
+        } else{move_on = TRUE}
+    }
+    }
+    }
+swap_function(move_on,)
+}
+
+
+guess_function(HTML_input, m)
+
+
+~~~~~~~~~~~~~~~~~~~ THE EQUATION ~~~~~~~~~~~~~~~~~~~~~~
+
+//find m
+//fill guess array w/ only d's
+//might still need to check orders w/ only ab, ac, bc, abc
+
+//  should I switch i and j loops??
+i=0;
+j=0;
+c=1;
+while (c >= 0) {
+    while (c >= 0) {
+        
+        c = (sum_below_total - (b_price - c_price)i - (a_price - b_price)j) / (c_price - d_price);
+        if(c >= 0 && Number.isInteger(c)) {
+            a = j;
+            b = i;
+            d = m - (a + b + c);
+            order_matches.push(j,i,c,d);
+        }
+        j++;
+    }
+    i++;
+}
+
+~~~~~~~~~~~~~~~~~~~ MATRIX VERSION ~~~~~~~~~~~~~~~~~~~~~~
+might be able to use parallel processing to do this way faster
+total = a*32.99 + b*24.99 + c*6.99 + d*3.99
+base_number_of_items = a + b + c + d
+
+
+
+~~~~~~~~~~~~~~~~~~~ BRUTE FORCE VERSION ~~~~~~~~~~~~~~~~~~~~~~
+
++a  see how many a's I can add until > total
++b  now how many b's can I add until > total
++c  now how many c's can I add until > total
++d  now how many d's can I add until > total
+        now remove 1 c and return to +d - until cant take c then clear d's
+        now remove 1 b and return to +c - until cant take b then clear c's and d's
+        now remove 1 a and return to +b - until cant take a then clear b's, c's, d's
+
+
+
+
+check_function
+If (a*32.99 + b*24.99 + c*6.99 + d*3.99) = total Then
+    add to output_list
+*/
+
+</script>
+</body>
+</html>
